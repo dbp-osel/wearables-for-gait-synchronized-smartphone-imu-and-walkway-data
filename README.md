@@ -20,9 +20,9 @@ Content description:
 
 Sync_All_Data.m                     MATLAB code for multiple system sync (alignment)
 
-RAWDATA.zip	                       Zipped folder containing all raw data collected
+RAWDATA.zip	                       Zipped folder containing all raw data collected  *Raw data folder is large. Working to upload soon.
 
-www.physionet.org/XXXXX    Link to PhysioNet.org repository with all data **Currently pending review and approval
+www.physionet.org/XXXXX            Link to PhysioNet.org repository with all data **Currently pending review and approval
 
 
 -	Future:
