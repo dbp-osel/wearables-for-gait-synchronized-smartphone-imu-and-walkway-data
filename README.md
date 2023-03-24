@@ -1,0 +1,1 @@
+# wearables-for-gait-synchronized-smartphone-imu-and-walkway-data
