@@ -17,11 +17,16 @@ Data for each of two reference IMUs and one walkway were post-collection time-sy
 Content description:  
 
 -	Current:
+
 Sync_All_Data.m                     MATLAB code for multiple system sync (alignment)
+
 RAWDATA.zip	                       Zipped folder containing all raw data collected
+
 www.physionet.org/XXXXX    Link to PhysioNet.org repository with all data
 
+
 -	Future:
+
 Links to any papers published by this group relative to this project may be added.
 
 
