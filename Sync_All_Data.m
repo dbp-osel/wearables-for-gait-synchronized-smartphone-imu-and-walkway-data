@@ -1,6 +1,6 @@
 %Sync All Data from Multiple Systems Based on Peak IMU Impulse
 
-%SW Authors: Nyman*, Patwardhan, Kontson, & Watkinson  *corresponding author: edward.nyman[at]fda.hhs.gov 
+%SW Authors: Nyman*, Watkinson, Patwardhan, Kontson  *corresponding author for code: edward.nyman[at]fda.hhs.gov 
 
 %CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
 
