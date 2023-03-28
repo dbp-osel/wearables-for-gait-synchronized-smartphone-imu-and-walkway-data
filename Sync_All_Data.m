@@ -7,9 +7,8 @@
 %This software and documentation (the "Software") were developed at the Food and Drug Administration (FDA) by employees of the Federal Government in the course of their official duties. Pursuant to Title 17, Section 105 of the United States Code, this work is not subject to copyright protection and is in the public domain. Permission is hereby granted, free of charge, to any person obtaining a copy of the Software, to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, or sell copies of the Software or derivatives, and to permit persons to whom the Software is furnished to do so. FDA assumes no responsibility whatsoever for use by other parties of the Software, its source code, documentation or compiled executables, and makes no guarantees, expressed or implied, about its quality, reliability, or any other characteristic. 
 %Further, use of this code in no way implies endorsement by the FDA or confers any advantage in regulatory decisions. Although this software can be redistributed and/or modified freely, we ask that any derivative works bear some notice that they are derived from it, and any modified versions bear some notice that they have been modified. 
 
-
-addpath(genpath('DATA')) %Set Path to Raw Data Files
-addpath(genpath('Synced Data')) %Set Path for Export Location for Synced Data
+addpath(genpath('DATA')) %Raw Data Files
+addpath(genpath('Synced Data')) %Export Location for Synced Data
 
 IMU_FRAME_RATE = 100;
 Walkway_FRAME_RATE = 100;
@@ -19,7 +18,7 @@ NUM_PHONES = 2;
 
 tic
 
-for subjectNumber = 6:NUM_SUBJECTS
+for subjectNumber = 1:NUM_SUBJECTS
 
     for sensorLocation = 1:NUM_SENSOR_LOCATIONS
 
@@ -40,36 +39,36 @@ for subjectNumber = 6:NUM_SUBJECTS
                 switch phoneNumber
                     case 1
                         phoneName = 'iPhone10';
-                        dataFolderNameIMU = ['DATA/DATA/Subject0' ...
+                        dataFolderNameIMU = ['DATA/Subject0' ...
                             num2str(subjectNumber) '/' ...
                             sensorLocationFolderName '/Deg_' num2str(degrees) ...
                             '/IMU_iPhone10'];
-                        dataFolderNamePhone = ['DATA/DATA/Subject0' ...
+                        dataFolderNamePhone = ['DATA/Subject0' ...
                             num2str(subjectNumber) '/' ...
                             sensorLocationFolderName '/Deg_' num2str(degrees) ...
                             '/iPhone10'];
-                        dataFolderNameWalkway = ['DATA/DATA/Subject0' ...
+                        dataFolderNameWalkway = ['DATA/Subject0' ...
                             num2str(subjectNumber) '/' ...
                             sensorLocationFolderName '/Deg_' num2str(degrees) ...
                             '/Walkway'];
                     case 2
                         phoneName = 'SamsungGalaxyS22';
-                        dataFolderNameIMU = ['DATA/DATA/Subject0' ...
+                        dataFolderNameIMU = ['DATA/Subject0' ...
                             num2str(subjectNumber) '/' ...
                             sensorLocationFolderName '/Deg_' num2str(degrees) ...
                             '/IMU_SamsungGalaxyS22'];
-                        dataFolderNamePhone = ['DATA/DATA/Subject0' ...
+                        dataFolderNamePhone = ['DATA/Subject0' ...
                             num2str(subjectNumber) '/' ...
                             sensorLocationFolderName '/Deg_' num2str(degrees) ...
                             '/SamsungGalaxyS22'];
-                        dataFolderNameWalkway = ['DATA/DATA/Subject0' ...
+                        dataFolderNameWalkway = ['DATA/Subject0' ...
                             num2str(subjectNumber) '/' ...
                             sensorLocationFolderName '/Deg_' num2str(degrees) ...
                             '/Walkway'];
                 end
                 
                 fileNameIMU = dir(dataFolderNameIMU);
-                fileNameIMU = fileNameIMU(3).name;
+                fileNameIMU = fileNameIMU(3).name; %fileNameIMU(3).name
                 fileID = fopen(fileNameIMU,'r');
                 formatSpec = '%f%s%s%s%s%s%s%s%s%s%s%s%s%s%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%s%s%f%s%s%s%[^\n\r]';
                 delimiter = ',';
@@ -93,57 +92,26 @@ for subjectNumber = 6:NUM_SUBJECTS
                 
                 fileNameWalkway = dir(dataFolderNameWalkway);
                 fileNameWalkway = fileNameWalkway(3).name;
-                delimiter = ';';
-                startRow = 9;
-                formatSpec = '%s%s%s%s%s%s%s%s%[^\n\r]';
-                fileID2 = fopen(fileNameWalkway,'r','n','UTF-8');
-                fseek(fileID2, 3, 'bof');
-                textscan(fileID2, '%[^\n\r]', startRow-1, 'WhiteSpace', '', 'ReturnOnError', false);
-                dataArray2 = textscan(fileID2, formatSpec, 'Delimiter', delimiter, 'ReturnOnError', false);
-                fclose(fileID2);
 
-                raw = repmat({''},length(dataArray2{1}),length(dataArray2)-1);
-                for col=1:length(dataArray2)-1
-                    raw(1:length(dataArray2{col}),col) = dataArray2{col};
-                end
-                numericData = NaN(size(dataArray2{1},1),size(dataArray2,2));
-
-                for col=[1,2,3,4,5,6,7,8]
-                    % Converts strings in the input cell array to numbers. Replaced non-numeric strings with NaN.
-                    rawData = dataArray2{col};
-                    for row=1:size(rawData, 1);
-                        % Create a regular expression to detect and remove non-numeric prefixes and suffixes.
-                        regexstr = '(?<prefix>.*?)(?<numbers>([-]*(\d+[\,]*)+[\.]{0,1}\d*[eEdD]{0,1}[-+]*\d*[i]{0,1})|([-]*(\d+[\,]*)*[\.]{1,1}\d+[eEdD]{0,1}[-+]*\d*[i]{0,1}))(?<suffix>.*)';
-                        try
-                            result = regexp(rawData{row}, regexstr, 'names');
-                            numbers = result.numbers;
-
-                            % Detected commas in non-thousand locations.
-                            invalidThousandsSeparator = false;
-                            if any(numbers==',');
-                                thousandsRegExp = '^\d+?(\,\d{3})*\.{0,1}\d*$';
-                                if isempty(regexp(thousandsRegExp, ',', 'once'));
-                                    numbers = NaN;
-                                    invalidThousandsSeparator = true;
-                                end
-                            end
-                            % Convert numeric strings to numbers.
-                            if ~invalidThousandsSeparator;
-                                numbers = textscan(strrep(numbers, ',', ''), '%f');
-                                numericData(row, col) = numbers{1};
-                                raw{row, col} = numbers{1};
-                            end
-                        catch me
-                        end
-                    end
-                end
-                R = cellfun(@(x) ~isnumeric(x) && ~islogical(x),raw); % Find non-numeric cells
-                raw(R) = {NaN}; % Replace non-numeric cells
-
-                WalkwayData = table;
-                WalkwayData.Timesec = cell2mat(raw(2:end, 1));
-                WalkwayData.LeftFootContact = cell2mat(raw(2:end, 4));
-                WalkwayData.RightFootContact = cell2mat(raw(2:end, 5));
+                dataLines = [11, Inf];
+                
+                % Set up Import Options 
+                opts = delimitedTextImportOptions("NumVariables", 8, "Encoding", "UTF-8");
+                
+                % Specify range and delimiter
+                opts.DataLines = dataLines;
+                opts.Delimiter = ";";
+                
+                % Specify column names and types
+                opts.VariableNames = ["Timesec", "LeftFootPressure", "LeftFootPressure1", "LeftFootContact", "RightFootContact", "LeftFootActiveSensors", "RightFootActiveSensors", "SyncIn"];
+                opts.VariableTypes = ["double", "double", "double", "double", "double", "double", "double", "double"];
+                
+                % Specify file level properties
+                opts.ExtraColumnsRule = "ignore";
+                opts.EmptyLineRule = "read";
+                
+                % Import the walkway data
+                WalkwayData = readtable(fileNameWalkway, opts);
 
                 IMUTimeStamps = (1/IMU_FRAME_RATE)*(1:length(PacketCounter))';
                 IMUY = Acc_Y;
