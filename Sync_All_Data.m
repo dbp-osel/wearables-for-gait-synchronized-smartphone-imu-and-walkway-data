@@ -103,7 +103,7 @@ for subjectNumber = 1:NUM_SUBJECTS
                 opts.Delimiter = ";";
                 
                 % Specify column names and types
-                opts.VariableNames = ["Timesec", "LeftFootPressure", "LeftFootPressure1", "LeftFootContact", "RightFootContact", "LeftFootActiveSensors", "RightFootActiveSensors", "SyncIn"];
+                opts.VariableNamesLine = 10; 
                 opts.VariableTypes = ["double", "double", "double", "double", "double", "double", "double", "double"];
                 
                 % Specify file level properties
@@ -140,7 +140,7 @@ for subjectNumber = 1:NUM_SUBJECTS
                 SyncedPhoneGyro = PhoneGyro(PhonePeakLocation:end,:);
                 SyncedLimPhoneGyro = LimPhoneGyro(PhonePeakLocation:end,:);
                 
-                WalkwayTimeStamps = WalkwayData.Timesec;
+                WalkwayTimeStamps = WalkwayData.Time_sec__;
                 WalkwayLeftFootContact = WalkwayData.LeftFootContact;
                 WalkwayRightFootContact = WalkwayData.RightFootContact;
                 WalkwayTimeStamps = WalkwayTimeStamps(IMUPeakLocation:end);
