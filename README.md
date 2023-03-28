@@ -2,7 +2,7 @@
 
 Wearables for gait: Synchronized smartphone IMU and walkway data during normal gait and obstacle avoidance gait 
 
-Kontson, Kimberly; Patwardhan Shriniwas; Watkinson, Sophia; Nyman, Edward
+Nyman, Edward; Watkinson, Sophia; Patwardhan Shriniwas; Kontson, Kimberly 
 
 Abstract: A PhysioNet database consisting of time-synchronized raw smartphone IMU, reference (ground truth) IMU, and pressure-sensing walkway data collected during normal gait and obstacle avoidance gait with two different smartphones placed at varying positions and orientations on the body was published.  This DBP GitHub repository was established to house the MATLAB code utilized to synchronize multiple system separate inputs that comprise said dataset. In addition, all raw data are included in a zipped folder. This repository may also serve to house links to any relevant future publications by this working group relative to said effort.  
 
@@ -32,7 +32,6 @@ Links to any papers published by this group relative to this project may be adde
 
 
 Usage notes: All data provided may be reused for any reasonable purpose, however, please note that these data are provided 'as is' and no guarantees are offered.   A separate PhysioNet (physionet.org) repository is maintained with full dataset available to qualified users. Please note: The mention of commercial products, their sources, or their use in connection with material reported herein is not to be construed as either an actual or implied endorsement of such products by the Department of Health and Human Services.
-
 
 Ethics: All data were collected from human subjects during a study approved by the U.S. Food and Drug Administration Institutional Review Board and in accordance with provisions consistent with the Declaration of Helsinki. Thorough measures were taken to de-identify data.  
   
