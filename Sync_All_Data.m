@@ -142,8 +142,8 @@ for subjectNumber = 6:NUM_SUBJECTS
 
                 WalkwayData = table;
                 WalkwayData.Timesec = cell2mat(raw(2:end, 1));
-                WalkwayData.LeftFootContact = cell2mat(raw(2:end, 2));
-                WalkwayData.RightFootContact = cell2mat(raw(2:end, 3));
+                WalkwayData.LeftFootContact = cell2mat(raw(2:end, 4));
+                WalkwayData.RightFootContact = cell2mat(raw(2:end, 5));
 
                 IMUTimeStamps = (1/IMU_FRAME_RATE)*(1:length(PacketCounter))';
                 IMUY = Acc_Y;
@@ -233,6 +233,7 @@ for subjectNumber = 6:NUM_SUBJECTS
                     frames.Properties.VariableNames = {'frame'};
                     
                     SyncedWalkway=SyncedWalkway(1:minim2,:);
+                    SyncedWalkway.Properties.VariableNames = {'TimeStamp','leftfootcontact','rightfootcontact'};
                     
                     tempdatacombo = horzcat(frames,tempdataIOS(:,2:end),tempdataAnd,SyncedWalkway(:,2:end));
 
