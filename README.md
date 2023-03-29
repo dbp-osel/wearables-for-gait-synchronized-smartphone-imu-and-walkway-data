@@ -18,17 +18,18 @@ Content description:
 
 -	Current:
 
-Sync_All_Data.m                     MATLAB code for multiple system sync (alignment)
+--Sync_All_Data.m                     MATLAB code for multiple system sync (alignment)
 
-SAMPLERAWDATA.zip                  Zipped folder containing a representative sample (single participant and single orientaton - 0 degrees) of raw data collected.
-RAWDATA.zip	                       Zipped folder containing all raw data collected  *Raw data folder is large. Working to upload soon.
+--SAMPLERAWDATA.zip                  Zipped folder containing a representative sample (single participant and single orientaton - 0 degrees) of raw data collected.
 
-www.physionet.org/XXXXX            Link to PhysioNet.org repository with all data **Currently pending review and approval
+--RAWDATA.zip	                       Zipped folder containing all raw data collected  *Raw data folder is large. Working to upload soon.
+
+--www.physionet.org/XXXXX            Link to PhysioNet.org repository with all data **Currently pending review and approval
 
 
 -	Future:
 
-Links to any papers published by this group relative to this project may be added.
+--Links to any papers published by this group relative to this project may be added.
 
 
 Usage notes: All data provided may be reused for any reasonable purpose, however, please note that these data are provided 'as is' and no guarantees are offered.   A separate PhysioNet (physionet.org) repository is maintained with full dataset available to qualified users. Please note: The mention of commercial products, their sources, or their use in connection with material reported herein is not to be construed as either an actual or implied endorsement of such products by the Department of Health and Human Services.
