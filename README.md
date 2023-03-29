@@ -1,6 +1,4 @@
-# wearables-for-gait-synchronized-smartphone-imu-and-walkway-data
-
-## Wearables for gait: Synchronized smartphone IMU and walkway data during normal gait and obstacle avoidance gait 
+# Wearables for gait: Synchronized smartphone IMU and walkway data during normal gait and obstacle avoidance gait 
 
 *Nyman, Edward; Watkinson, Sophia; Patwardhan Shriniwas; Kontson, Kimberly*
 
