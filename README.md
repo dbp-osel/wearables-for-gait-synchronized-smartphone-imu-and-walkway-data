@@ -21,18 +21,18 @@ Data for each of two reference IMUs and one walkway were post-collection time-sy
 
 ### Current:
 
---Sync_All_Data.m                    MATLAB code for multiple system sync (alignment)
+- Sync_All_Data.m                    MATLAB code for multiple system sync (alignment)
 
---SAMPLERAWDATA.zip                  Zipped folder containing a representative sample (single participant and single orientaton - 0 degrees) of raw data collected.
+- SAMPLERAWDATA.zip                  Zipped folder containing a representative sample (single participant and single orientaton - 0 degrees) of raw data collected.
 
---RAWDATA.zip	                       Zipped folder containing all raw data collected  *Raw data folder is large. Full raw dataset coming soon.*
+- RAWDATA.zip	                       Zipped folder containing all raw data collected  *Raw data folder is large. Full raw dataset coming soon.*
 
---www.physionet.org/XXXXX            Link to PhysioNet.org repository with all data **Currently pending review and approval**
+- www.physionet.org/XXXXX            Link to PhysioNet.org repository with all data **Currently pending review and approval**
 
 
 ### Future:
 
---Links to any papers published by this group relative to this project may be added.
+- Links to any papers published by this group relative to this project may be added.
 
 
 ### Usage notes: 
