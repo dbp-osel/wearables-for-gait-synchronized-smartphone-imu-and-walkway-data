@@ -1,6 +1,6 @@
 %Sync All Data from Multiple Systems Based on Peak IMU Impulse
 
-%SW Authors: Nyman*, Watkinson, Patwardhan, Kontson  *corresponding author for code: edward.nyman[at]fda.hhs.gov 
+%SW Authors: Nyman*, Patwardhan, Kontson, & Watkinson  *corresponding author: edward.nyman[at]fda.hhs.gov 
 
 %CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
 
@@ -88,6 +88,7 @@ for subjectNumber = 1:NUM_SUBJECTS
                 fileNamePhoneGyro = [dataFolderNamePhone '/Gyroscope.csv'];
                 PhoneGyro = readtable(fileNamePhoneGyro);
                 PhoneGyro.Properties.VariableNames = {'t','sec_elapsed','z_gyro','y_gyro','x_gyro'};
+                PhoneGyro.sec_elapsed = PhoneGyro.sec_elapsed - PhoneGyro.sec_elapsed(1);
                 LimPhoneGyro = PhoneGyro(:,3:5);
                 
                 fileNameWalkway = dir(dataFolderNameWalkway);
@@ -119,9 +120,9 @@ for subjectNumber = 1:NUM_SUBJECTS
                 IMUZ = Acc_Z;
                 magIMU = sqrt(IMUY.^2 +IMUX.^2 +IMUZ.^2);
                 
-                [IMUYPeak, IMUPeakLocation]= max(magIMU);
+                [IMUPeak, IMUPeakLocation]= max(magIMU);
                 
-                KeyIMU = horzcat(IMUTimeStamps, Acc_X, Acc_Y, Acc_Z, Gyro_X, Gyro_Y, Gyro_Z); %was PacketCounter instead of IMUTimeStamps
+                KeyIMU = horzcat(IMUTimeStamps, Acc_X, Acc_Y, Acc_Z, Gyro_X, Gyro_Y, Gyro_Z);
                 SyncedIMU = KeyIMU(IMUPeakLocation:end,:);
 
                 PhoneTimeStamps = PhoneAcc.seconds_elapsed;
@@ -135,16 +136,33 @@ for subjectNumber = 1:NUM_SUBJECTS
                 PhoneTimeStamps = PhoneTimeStamps - PhoneTimeStamps(1);
                 PeakPhone = magPhoneAcc(PhonePeakLocation:end);
                 SyncedPhoneAcc = PhoneAcc(PhonePeakLocation:end,:);
+                SyncedPhoneAcc = SyncedPhoneAcc(2:end,:);
                 SyncedPhoneAcc.seconds_elapsed = SyncedPhoneAcc.seconds_elapsed - SyncedPhoneAcc.seconds_elapsed(1);
                 
                 SyncedPhoneGyro = PhoneGyro(PhonePeakLocation:end,:);
                 SyncedLimPhoneGyro = LimPhoneGyro(PhonePeakLocation:end,:);
-                
+
+                %resample smartphone data
+                samprt_phone = mean(diff(SyncedPhoneAcc.seconds_elapsed));
+                [p,q] = rat((samprt_phone*10000)/100);
+                resampled_SyncedPhoneAcc_z = resample(SyncedPhoneAcc.z,p,q);
+                resampled_SyncedPhoneAcc_y = resample(SyncedPhoneAcc.y,p,q);
+                resampled_SyncedPhoneAcc_x = resample(SyncedPhoneAcc.x,p,q);
+                resampled_SyncedPhoneAcc_seconds = (0:0.01:(numel(resampled_SyncedPhoneAcc_z)/100)).';
+                rs_SyncedPhoneAcc = horzcat(resampled_SyncedPhoneAcc_seconds(1:end-1),resampled_SyncedPhoneAcc_z,resampled_SyncedPhoneAcc_y, resampled_SyncedPhoneAcc_x);
+                rs_SyncedPhoneAcc = array2table(rs_SyncedPhoneAcc);
+
+                resampled_SyncedLimPhoneGyro_z = resample(SyncedLimPhoneGyro.z_gyro,p,q);
+                resampled_SyncedLimPhoneGyro_y = resample(SyncedLimPhoneGyro.y_gyro,p,q);
+                resampled_SyncedLimPhoneGyro_x = resample(SyncedLimPhoneGyro.x_gyro,p,q);
+                rs_SyncedLimPhoneGyro = horzcat(resampled_SyncedLimPhoneGyro_z,resampled_SyncedLimPhoneGyro_y, resampled_SyncedLimPhoneGyro_x);
+                rs_SyncedLimPhoneGyro = array2table(rs_SyncedLimPhoneGyro);
+
                 WalkwayTimeStamps = WalkwayData.Time_sec__;
                 WalkwayLeftFootContact = WalkwayData.LeftFootContact;
                 WalkwayRightFootContact = WalkwayData.RightFootContact;
                 WalkwayTimeStamps = WalkwayTimeStamps(IMUPeakLocation:end);
-                %WalkwayTimeStamps = WalkwayTimeStamps - WalkwayTimeStamps(1);
+                WalkwayTimeStamps = WalkwayTimeStamps - WalkwayTimeStamps(1);
                 WalkwayLeftFootContact = WalkwayLeftFootContact(IMUPeakLocation:end);
                 WalkwayRightFootContact = WalkwayRightFootContact(IMUPeakLocation:end);
                 WalkwayLeftFootContact(isnan(WalkwayLeftFootContact))=0;
@@ -153,19 +171,18 @@ for subjectNumber = 1:NUM_SUBJECTS
                 SyncedWalkway = horzcat(WalkwayTimeStamps, WalkwayLeftFootContact, WalkwayRightFootContact);
                 SyncedWalkway = array2table(SyncedWalkway);
 
-                
                 %ensure trials end simultaneously 
                 testhtW = height(SyncedWalkway);
-                testhtPA = height(SyncedPhoneAcc);
+                testhtPA = height(rs_SyncedPhoneAcc);
                 testhtPG = height(SyncedPhoneGyro);
-                testhtI = length(SyncedIMU);
+                testhtI = height(rs_SyncedLimPhoneGyro);
                 compare = horzcat(testhtW,testhtPA,testhtPG,testhtI);
                 minim = min(compare);
-                SyncedPhoneAcc=SyncedPhoneAcc(1:minim,:);
+                rs_SyncedPhoneAcc=rs_SyncedPhoneAcc(1:minim,:);
                 SyncedPhoneGyro=SyncedPhoneGyro(1:minim,:);
                 SyncedWalkway=SyncedWalkway(1:minim,:);
                 SyncedIMU=SyncedIMU(1:minim,:);
-                SyncedLimPhoneGyro = SyncedLimPhoneGyro(1:minim,:);
+                rs_SyncedLimPhoneGyro = rs_SyncedLimPhoneGyro(1:minim,:);
                 
                 newfileNamePhoneAcc = [dataFolderNamePhone '/Synced_Accelerometer.csv'];
 
@@ -178,14 +195,14 @@ for subjectNumber = 1:NUM_SUBJECTS
                 SyncedIMU = array2table(SyncedIMU);
                 
                 if strcmp('iPhone10',phoneName)
-                    tempdataIOS = horzcat(SyncedPhoneAcc,SyncedLimPhoneGyro,SyncedIMU(:,2:end));
-                    tempdataIOS = tempdataIOS(:,2:end);
+                    tempdataIOS = horzcat(rs_SyncedPhoneAcc,rs_SyncedLimPhoneGyro,SyncedIMU(:,2:end));
+                    tempdataIOS = tempdataIOS(:,1:end);
                 end
                 
                 if strcmp('SamsungGalaxyS22',phoneName)
                     SyncedIMU.Properties.VariableNames = {'TimeStamp','AS_Acc_X', 'AS_Acc_Y', 'AS_Acc_Z', 'AS_Gyro_X', 'AS_Gyro_Y', 'AS_Gyro_Z'};
-                    tempdataAnd = horzcat(SyncedPhoneAcc,SyncedLimPhoneGyro,SyncedIMU(:,2:end));
-                    tempdataAnd = tempdataAnd(:,3:end);
+                    tempdataAnd = horzcat(rs_SyncedPhoneAcc,rs_SyncedLimPhoneGyro,SyncedIMU(:,2:end));
+                    tempdataAnd = tempdataAnd(:,2:end);
                 
                     testhtIOS = height(tempdataIOS);
                     testhtAND = height(tempdataAnd);
@@ -194,7 +211,7 @@ for subjectNumber = 1:NUM_SUBJECTS
                     tempdataIOS=tempdataIOS(1:minim2,:);
                     tempdataAnd=tempdataAnd(1:minim2,:);
                     
-                    tempdataIOS.Properties.VariableNames = {'sec_elapsed','ios_acc_z','ios_acc_y','ios_acc_x', 'ios_gyro_z','ios_gyro_y','ios_gyro_x','iimu_acc_x','iimu_acc_y','iimu_acc_z','iimu_gyro_x','iimu_gyro_y','iimu_gyro_z'};
+                    tempdataIOS.Properties.VariableNames = {'time','ios_acc_z','ios_acc_y','ios_acc_x', 'ios_gyro_z','ios_gyro_y','ios_gyro_x','iimu_acc_x','iimu_acc_y','iimu_acc_z','iimu_gyro_x','iimu_gyro_y','iimu_gyro_z'};
                     tempdataAnd.Properties.VariableNames = {'and_acc_z','and_acc_y','and_acc_x', 'and_gyro_z','and_gyro_y','and_gyro_x','aimu_acc_x','aimu_acc_y','aimu_acc_z','aimu_gyro_x','aimu_gyro_y','aimu_gyro_z'};
                     
                     frames = array2table([1:minim2].');
