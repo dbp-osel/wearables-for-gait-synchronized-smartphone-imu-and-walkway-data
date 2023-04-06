@@ -75,11 +75,11 @@ for subjectNumber = 1:NUM_SUBJECTS
                 dataArray = textscan(fileID, formatSpec, 'Delimiter', delimiter, 'EmptyValue', NaN,'HeaderLines', 5, 'ReturnOnError', false);
                 fclose(fileID);
                 PacketCounter = dataArray{:, 1};
-                Acc_X = dataArray{:, 15};
-                Acc_Y = dataArray{:, 16};
+                Acc_Y = dataArray{:, 15};
+                Acc_X = dataArray{:, 16}*-1;
                 Acc_Z = dataArray{:, 17};
-                Gyro_X = dataArray{:, 21};
-                Gyro_Y = dataArray{:, 22};
+                Gyro_Y = dataArray{:, 21};
+                Gyro_X = dataArray{:, 22}*-1;
                 Gyro_Z = dataArray{:, 23};
 
                 fileNamePhoneAcc = [dataFolderNamePhone '/AccelerometerUncalibrated.csv'];
