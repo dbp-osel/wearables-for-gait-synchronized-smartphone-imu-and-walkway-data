@@ -82,7 +82,7 @@ for subjectNumber = 1:NUM_SUBJECTS
                 Gyro_Y = dataArray{:, 22};
                 Gyro_Z = dataArray{:, 23};
 
-                fileNamePhoneAcc = [dataFolderNamePhone '/Accelerometer.csv'];
+                fileNamePhoneAcc = [dataFolderNamePhone '/AccelerometerUncalibrated.csv'];
                 PhoneAcc = readtable(fileNamePhoneAcc);
                 
                 fileNamePhoneGyro = [dataFolderNamePhone '/Gyroscope.csv'];
