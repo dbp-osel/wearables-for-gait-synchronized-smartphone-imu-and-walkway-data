@@ -7,12 +7,14 @@
 %This software and documentation (the "Software") were developed at the Food and Drug Administration (FDA) by employees of the Federal Government in the course of their official duties. Pursuant to Title 17, Section 105 of the United States Code, this work is not subject to copyright protection and is in the public domain. Permission is hereby granted, free of charge, to any person obtaining a copy of the Software, to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, or sell copies of the Software or derivatives, and to permit persons to whom the Software is furnished to do so. FDA assumes no responsibility whatsoever for use by other parties of the Software, its source code, documentation or compiled executables, and makes no guarantees, expressed or implied, about its quality, reliability, or any other characteristic. 
 %Further, use of this code in no way implies endorsement by the FDA or confers any advantage in regulatory decisions. Although this software can be redistributed and/or modified freely, we ask that any derivative works bear some notice that they are derived from it, and any modified versions bear some notice that they have been modified. 
 
+%Sync All Data from Multiple Systems Based on Peak IMU Impulse
+
 addpath(genpath('DATA')) %Raw Data Files
 addpath(genpath('Synced Data')) %Export Location for Synced Data
 
 IMU_FRAME_RATE = 100;
 Walkway_FRAME_RATE = 100;
-NUM_SUBJECTS =  20;
+NUM_SUBJECTS = 20;
 NUM_SENSOR_LOCATIONS = 2; 
 NUM_PHONES = 2;
 
@@ -222,30 +224,50 @@ for subjectNumber = 1:NUM_SUBJECTS
                     
                     tempdatacombo = horzcat(frames,tempdataIOS(:,2:end),tempdataAnd,SyncedWalkway(:,2:end));
 
-                    yval = tempdatacombo(1800:end,8); % imu_y accel data from reference IMU(XSens)
-                    xval = tempdatacombo(1800:end,9);
-                    zval = tempdatacombo(1800:end,10);
-                    yval = table2array(yval);
-                    xval = table2array(xval);
-                    zval = table2array(zval);
+                    contactcombo = SyncedWalkway.leftfootcontact+SyncedWalkway.rightfootcontact;
+                    [J,K] = find(contactcombo>1.99);
+                    if isempty(K)
+                        first = 1500;
+                    else
+                        first = J(1)-150;
+                    end
+                    if first<1
+                        first = 1;
+                    end
+                    yval1 = tempdatacombo(first:end,8);
+                    yval2 = tempdatacombo(first:end,20);
+                    xval1 = tempdatacombo(first:end,9);
+                    xval2 = tempdatacombo(first:end,21);
+                    zval1 = tempdatacombo(first:end,10);
+                    zval2 = tempdatacombo(first:end,22);
+                    
+                    yval1 = table2array(yval1);
+                    xval1 = table2array(xval1);
+                    zval1 = table2array(zval1);
+                    yval2 = table2array(yval2);
+                    xval2 = table2array(xval2);
+                    zval2 = table2array(zval2);
+
+                    yval = (yval1+yval2)./2;
+                    xval = (xval1+xval2)./2;
+                    zval = (zval1+zval2)./2;
+
                     x = sqrt(xval.^2 +yval.^2 +zval.^2);
-                    xdata = x;
                     x = sqrt(x.*x);
                     x = x-9.81;
-                    x = sqrt(x.*x);
-                    x(x<1.5) = 1;
+                    xdata = x;
+                    x(x<1.5) = 1; 
                     x(x>=1.5) = 0;
                     xx = diff(x);
-        
                     xxabs = abs(xx);
                     holder = find(xxabs==1);
                     [M,I] = find(xxabs==1);
                     delta = diff(M); 
                     [M,I] = max(delta);
-                    key = (holder(I))+1800+(round(M./2));
-                  
-                    split1 = tempdatacombo(1:key,:);
-                    split2 = tempdatacombo(key+1:end,:);
+                    splitpt = (holder(I))+first+(round(M./2));
+
+                    split1 = tempdatacombo(1:splitpt,:);
+                    split2 = tempdatacombo(splitpt+1:end,:);
 
                     newcombofilename_walk = ['./Synced Data/' 'S0' num2str(subjectNumber) '_' sensorLocationFolderName '_' num2str(degrees) 'deg_walk.csv'];
                     newcombofilename_obs = ['./Synced Data/' 'S0' num2str(subjectNumber) '_' sensorLocationFolderName '_' num2str(degrees) 'deg_obs.csv'];
