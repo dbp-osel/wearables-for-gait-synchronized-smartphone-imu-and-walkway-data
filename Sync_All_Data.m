@@ -7,18 +7,20 @@
 %This software and documentation (the "Software") were developed at the Food and Drug Administration (FDA) by employees of the Federal Government in the course of their official duties. Pursuant to Title 17, Section 105 of the United States Code, this work is not subject to copyright protection and is in the public domain. Permission is hereby granted, free of charge, to any person obtaining a copy of the Software, to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, or sell copies of the Software or derivatives, and to permit persons to whom the Software is furnished to do so. FDA assumes no responsibility whatsoever for use by other parties of the Software, its source code, documentation or compiled executables, and makes no guarantees, expressed or implied, about its quality, reliability, or any other characteristic. 
 %Further, use of this code in no way implies endorsement by the FDA or confers any advantage in regulatory decisions. Although this software can be redistributed and/or modified freely, we ask that any derivative works bear some notice that they are derived from it, and any modified versions bear some notice that they have been modified. 
 
-%Sync All Data from Multiple Systems Based on Peak IMU Impulse
-
 addpath(genpath('DATA')) %Raw Data Files
 addpath(genpath('Synced Data')) %Export Location for Synced Data
+
+IMU_FRAME_RATE = 100;
+Walkway_FRAME_RATE = 100;
+NUM_SUBJECTS =  20;
+NUM_SENSOR_LOCATIONS = 2; 
+NUM_PHONES = 2;
 
 IMU_FRAME_RATE = 100;
 Walkway_FRAME_RATE = 100;
 NUM_SUBJECTS = 20;
 NUM_SENSOR_LOCATIONS = 2; 
 NUM_PHONES = 2;
-
-tic
 
 for subjectNumber = 1:NUM_SUBJECTS
 
@@ -70,7 +72,7 @@ for subjectNumber = 1:NUM_SUBJECTS
                 end
                 
                 fileNameIMU = dir(dataFolderNameIMU);
-                fileNameIMU = fileNameIMU(3).name; %fileNameIMU(3).name
+                fileNameIMU = fileNameIMU(3).name;
                 fileID = fopen(fileNameIMU,'r');
                 formatSpec = '%f%s%s%s%s%s%s%s%s%s%s%s%s%s%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%s%s%f%s%s%s%[^\n\r]';
                 delimiter = ',';
@@ -86,6 +88,10 @@ for subjectNumber = 1:NUM_SUBJECTS
 
                 fileNamePhoneAcc = [dataFolderNamePhone '/AccelerometerUncalibrated.csv'];
                 PhoneAcc = readtable(fileNamePhoneAcc);
+                
+                if strcmp('iPhone10',phoneName)
+                    PhoneAcc{:,3:end} = PhoneAcc{:,3:end}.*-9.80665;
+                end
                 
                 fileNamePhoneGyro = [dataFolderNamePhone '/Gyroscope.csv'];
                 PhoneGyro = readtable(fileNamePhoneGyro);
@@ -176,15 +182,13 @@ for subjectNumber = 1:NUM_SUBJECTS
                 %ensure trials end simultaneously 
                 testhtW = height(SyncedWalkway);
                 testhtPA = height(rs_SyncedPhoneAcc);
-                testhtPG = height(SyncedPhoneGyro);
                 testhtI = height(rs_SyncedLimPhoneGyro);
-                compare = horzcat(testhtW,testhtPA,testhtPG,testhtI);
+                compare = horzcat(testhtW,testhtPA,testhtI);
                 minim = min(compare);
                 rs_SyncedPhoneAcc=rs_SyncedPhoneAcc(1:minim,:);
-                SyncedPhoneGyro=SyncedPhoneGyro(1:minim,:);
+                rs_SyncedLimPhoneGyro = rs_SyncedLimPhoneGyro(1:minim,:);
                 SyncedWalkway=SyncedWalkway(1:minim,:);
                 SyncedIMU=SyncedIMU(1:minim,:);
-                rs_SyncedLimPhoneGyro = rs_SyncedLimPhoneGyro(1:minim,:);
                 
                 newfileNamePhoneAcc = [dataFolderNamePhone '/Synced_Accelerometer.csv'];
 
@@ -197,15 +201,36 @@ for subjectNumber = 1:NUM_SUBJECTS
                 SyncedIMU = array2table(SyncedIMU);
                 
                 if strcmp('iPhone10',phoneName)
-                    tempdataIOS = horzcat(rs_SyncedPhoneAcc,rs_SyncedLimPhoneGyro,SyncedIMU(:,2:end));
-                    tempdataIOS = tempdataIOS(:,1:end);
+                    tempdataIOSPre = horzcat(rs_SyncedPhoneAcc,rs_SyncedLimPhoneGyro,SyncedIMU(:,2:end),SyncedWalkway(:,2:end));
+                    tempdataIOS = tempdataIOSPre(:,1:end);
+
                 end
                 
                 if strcmp('SamsungGalaxyS22',phoneName)
                     SyncedIMU.Properties.VariableNames = {'TimeStamp','AS_Acc_X', 'AS_Acc_Y', 'AS_Acc_Z', 'AS_Gyro_X', 'AS_Gyro_Y', 'AS_Gyro_Z'};
-                    tempdataAnd = horzcat(rs_SyncedPhoneAcc,rs_SyncedLimPhoneGyro,SyncedIMU(:,2:end));
-                    tempdataAnd = tempdataAnd(:,2:end);
-                
+                    tempdataAndPre = horzcat(rs_SyncedPhoneAcc,rs_SyncedLimPhoneGyro,SyncedIMU(:,2:end),SyncedWalkway(:,2:end));
+                    tempdataAnd = tempdataAndPre(:,2:end);
+                    
+                    [fli, flvi] = find(tempdataIOS.SyncedWalkway2+tempdataIOS.SyncedWalkway3==2);
+                    if isempty(fli)
+                        fli=161;
+                    end
+                    if fli(1) < 161
+                        fli=161;
+                    end
+                    startfli = fli(1)-160;
+                    tempdataIOS = tempdataIOS(startfli:end,:);
+
+                    [fla, flva] = find(tempdataAnd.SyncedWalkway2+tempdataAnd.SyncedWalkway3==2);
+                    if isempty(fla)
+                        fla=161;
+                    end
+                    if fla(1) < 161
+                        fla=161;
+                    end
+                    startfla = fla(1)-160;
+                    tempdataAnd = tempdataAnd(startfla:end,:);
+
                     testhtIOS = height(tempdataIOS);
                     testhtAND = height(tempdataAnd);
                     compare2 = horzcat(testhtIOS,testhtAND);
@@ -213,27 +238,34 @@ for subjectNumber = 1:NUM_SUBJECTS
                     tempdataIOS=tempdataIOS(1:minim2,:);
                     tempdataAnd=tempdataAnd(1:minim2,:);
                     
-                    tempdataIOS.Properties.VariableNames = {'time','ios_acc_z','ios_acc_y','ios_acc_x', 'ios_gyro_z','ios_gyro_y','ios_gyro_x','iimu_acc_x','iimu_acc_y','iimu_acc_z','iimu_gyro_x','iimu_gyro_y','iimu_gyro_z'};
-                    tempdataAnd.Properties.VariableNames = {'and_acc_z','and_acc_y','and_acc_x', 'and_gyro_z','and_gyro_y','and_gyro_x','aimu_acc_x','aimu_acc_y','aimu_acc_z','aimu_gyro_x','aimu_gyro_y','aimu_gyro_z'};
+                    tempdataIOS.Properties.VariableNames = {'time','ios_acc_z','ios_acc_y','ios_acc_x', 'ios_gyro_z','ios_gyro_y','ios_gyro_x','iimu_acc_x','iimu_acc_y','iimu_acc_z','iimu_gyro_x','iimu_gyro_y','iimu_gyro_z', 'ILeftSWW', 'IRightSWW'};
+                    tempdataAnd.Properties.VariableNames = {'and_acc_z','and_acc_y','and_acc_x', 'and_gyro_z','and_gyro_y','and_gyro_x','aimu_acc_x','aimu_acc_y','aimu_acc_z','aimu_gyro_x','aimu_gyro_y','aimu_gyro_z', 'leftfootcontact', 'rightfootcontact'};
                     
                     frames = array2table([1:minim2].');
                     frames.Properties.VariableNames = {'frame'};
                     
-                    SyncedWalkway=SyncedWalkway(1:minim2,:);
-                    SyncedWalkway.Properties.VariableNames = {'TimeStamp','leftfootcontact','rightfootcontact'};
-                    
-                    tempdatacombo = horzcat(frames,tempdataIOS(:,2:end),tempdataAnd,SyncedWalkway(:,2:end));
+                    tempdatacombo = horzcat(frames,tempdataIOS(:,2:end-2),tempdataAnd);
 
-                    contactcombo = SyncedWalkway.leftfootcontact+SyncedWalkway.rightfootcontact;
-                    [J,K] = find(contactcombo>1.99);
+                    contactcombo = tempdatacombo.leftfootcontact+tempdatacombo.rightfootcontact;
+                    contactcombo(contactcombo<=1.99) = 0;
+                    contactcombo(contactcombo>1.99) = 1;
+                    [J,K] = find(contactcombo>0.99);
                     if isempty(K)
-                        first = 1500;
+                        first = 1;
                     else
-                        first = J(1)-150;
+                        first = J(1);
                     end
                     if first<1
                         first = 1;
                     end
+
+                    leftsteps = diff(tempdatacombo.leftfootcontact);
+                    rightsteps = diff(tempdatacombo.rightfootcontact);
+                    holdleft = find(leftsteps==1);
+                    holdright = find(rightsteps==1);
+                    ts = length(holdleft) + length(holdright);
+                    avgsteps = round(ts./8);
+
                     yval1 = tempdatacombo(first:end,8);
                     yval2 = tempdatacombo(first:end,20);
                     xval1 = tempdatacombo(first:end,9);
@@ -244,6 +276,7 @@ for subjectNumber = 1:NUM_SUBJECTS
                     yval1 = table2array(yval1);
                     xval1 = table2array(xval1);
                     zval1 = table2array(zval1);
+
                     yval2 = table2array(yval2);
                     xval2 = table2array(xval2);
                     zval2 = table2array(zval2);
@@ -253,18 +286,17 @@ for subjectNumber = 1:NUM_SUBJECTS
                     zval = (zval1+zval2)./2;
 
                     x = sqrt(xval.^2 +yval.^2 +zval.^2);
-                    x = sqrt(x.*x);
+                    x = abs(x);
                     x = x-9.81;
                     xdata = x;
                     x(x<1.5) = 1; 
                     x(x>=1.5) = 0;
-                    xx = diff(x);
-                    xxabs = abs(xx);
-                    holder = find(xxabs==1);
-                    [M,I] = find(xxabs==1);
+                    x = diff(x);
+                    holder = find(x==1);
+                    [M,I] = find(x==1);
                     delta = diff(M); 
                     [M,I] = max(delta);
-                    splitpt = (holder(I))+first+(round(M./2));
+                    splitpt = first+holder(I)+round(M./3);
 
                     split1 = tempdatacombo(1:splitpt,:);
                     split2 = tempdatacombo(splitpt+1:end,:);
@@ -282,4 +314,3 @@ for subjectNumber = 1:NUM_SUBJECTS
         end
     end
 end
-toc
