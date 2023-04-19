@@ -23,7 +23,7 @@ Data for each of two reference IMUs and one walkway were post-collection time-sy
 
 - SAMPLERAWDATA.zip                  // Zipped folder containing a representative sample (single participant and single orientaton - 0 degrees) of raw data collected.
 
-- www.physionet.org/XXXXX            // Link to PhysioNet.org repository with all data // **Currently pending review and approval**
+- www.placefuturerepohere/XXXXX            // Link to future repository with all data // **Currently pending review and approval**
 
 
 ### Future:
@@ -33,7 +33,7 @@ Data for each of two reference IMUs and one walkway were post-collection time-sy
 - Links to any papers published by this group relative to this project may be added.
 
 ### Usage notes: 
-All data provided may be reused for any reasonable purpose, however, please note that these data are provided 'as is' and no guarantees are offered.   A separate PhysioNet (physionet.org) repository is maintained with full dataset available to qualified users. Please note: The mention of commercial products, their sources, or their use in connection with material reported herein is not to be construed as either an actual or implied endorsement of such products by the Department of Health and Human Services.
+All data provided may be reused for any reasonable purpose, however, please note that these data are provided 'as is' and no guarantees are offered.   A separate repository will be maintained with full dataset available to qualified users. Please note: The mention of commercial products, their sources, or their use in connection with material reported herein is not to be construed as either an actual or implied endorsement of such products by the Department of Health and Human Services.
 
 ### Ethics: 
 All data were collected from human subjects during a study approved by the U.S. Food and Drug Administration Institutional Review Board and in accordance with provisions consistent with the Declaration of Helsinki. Thorough measures were taken to de-identify data.  
