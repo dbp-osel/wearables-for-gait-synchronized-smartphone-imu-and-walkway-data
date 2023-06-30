@@ -302,8 +302,8 @@ for subjectNumber = 1:NUM_SUBJECTS
                     split1 = tempdatacombo(1:splitpt,:);
                     split2 = tempdatacombo(splitpt+1:end,:);
 
-                    newcombofilename_walk = ['./Synced Data/' 'S0' num2str(subjectNumber) '_' sensorLocationFolderName '_' num2str(degrees) 'deg_walk.csv'];
-                    newcombofilename_obs = ['./Synced Data/' 'S0' num2str(subjectNumber) '_' sensorLocationFolderName '_' num2str(degrees) 'deg_obs.csv'];
+                    newcombofilename_walk = ['./Synced Data/' 'S0' num2str(subjectNumber) '_' sensorLocationFolderName '_' num2str(degrees) 'deg_straight.csv'];
+                    newcombofilename_obs = ['./Synced Data/' 'S0' num2str(subjectNumber) '_' sensorLocationFolderName '_' num2str(degrees) 'deg_curve.csv'];
                     newcombofilename = ['./Synced Data/' 'S0' num2str(subjectNumber) '_' sensorLocationFolderName '_' num2str(degrees) 'deg.csv'];
 
                     writetable(split1, newcombofilename_walk);
