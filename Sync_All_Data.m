@@ -87,14 +87,15 @@ for subjectNumber = 1:NUM_SUBJECTS
                 Gyro_Z = dataArray{:, 23};
 
                 fileNamePhoneAcc = [dataFolderNamePhone '/AccelerometerUncalibrated.csv'];
+                fileNamePhoneGyro = [dataFolderNamePhone '/Gyroscope.csv'];
                 PhoneAcc = readtable(fileNamePhoneAcc);
+                PhoneGyro = readtable(fileNamePhoneGyro);
                 
                 if strcmp('iPhone10',phoneName)
                     PhoneAcc{:,3:end} = PhoneAcc{:,3:end}.*-9.80665;
+                    PhoneGyro{:,3:end} = PhoneGyro{:,3:end}.*-1;
                 end
                 
-                fileNamePhoneGyro = [dataFolderNamePhone '/Gyroscope.csv'];
-                PhoneGyro = readtable(fileNamePhoneGyro);
                 PhoneGyro.Properties.VariableNames = {'t','sec_elapsed','z_gyro','y_gyro','x_gyro'};
                 PhoneGyro.sec_elapsed = PhoneGyro.sec_elapsed - PhoneGyro.sec_elapsed(1);
                 LimPhoneGyro = PhoneGyro(:,3:5);
